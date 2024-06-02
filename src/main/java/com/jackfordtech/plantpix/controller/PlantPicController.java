@@ -15,4 +15,9 @@ public class PlantPicController {
     public void upload( @RequestParam("image") MultipartFile file) throws IOException {
         plantPixService.uploadImage(file);
     }
+
+    @GetMapping(value="/latestimage", produces = "image/jpeg")
+    public byte[] latestImage() {
+        return plantPixService.latestImage();
+    }
 }

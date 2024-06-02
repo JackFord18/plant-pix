@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -19,6 +20,13 @@ import java.util.*;
 public class PlantPixServiceImpl implements PlantPixService {
     @Autowired
     S3Client s3Client;
+
+    public byte[] latestImage() {
+        GetObjectRequest objectRequest = constructGetObjectRequest("latest/latestImage.jpg");
+        ResponseBytes<GetObjectResponse> objectBytes = s3Client.getObjectAsBytes(objectRequest);
+
+        return objectBytes.asByteArray();
+    }
 
     public void uploadImage(MultipartFile file) throws IOException {
         String defaultImageType = "jpg";
