@@ -5,6 +5,7 @@ import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.ResponseBytes;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -65,10 +66,12 @@ public class PlantPixServiceImpl implements PlantPixService {
         return GetObjectRequest.builder().bucket("plantpix").key(key).build();
     }
 
-    private boolean shouldUpdateLatestImage(S3Client s3Client) {
+    private boolean shouldUpdateLatestImage(S3Client s3Client) throws IOException {
         Instant currentTime = Instant.now();
         GetObjectRequest getObjectRequest = constructGetObjectRequest("latest/latestImage.jpg");
-        GetObjectResponse getObjectResponse = s3Client.getObject(getObjectRequest).response();
+        ResponseInputStream<GetObjectResponse> s3Object = s3Client.getObject(getObjectRequest);
+        GetObjectResponse getObjectResponse = s3Object.response();
+        s3Object.close();
         Instant latestImageLastModified = getObjectResponse.lastModified();
 
         return currentTime.isAfter(latestImageLastModified);
